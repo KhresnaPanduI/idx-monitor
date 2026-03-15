@@ -90,8 +90,8 @@ function buildVisualGraph(data: GraphData, centerId: string, filters: GraphFilte
     source: edge.sourceId,
     target: edge.targetId,
     label: `${edge.issuerName} / ${edge.investorName}: ${formatPercentage(edge.percentage)}`,
-    color: "rgba(79, 70, 229, 0.15)", // Soft Indigo Links
-    width: Math.max(0.5, edge.percentage / 8),
+    color: "rgba(79, 70, 229, 0.22)", // Keep links readable regardless of holding size
+    width: 1.5,
   }));
 
   return { nodes, links, expanded };
