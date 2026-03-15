@@ -101,11 +101,7 @@ export function SearchPanel({ snapshotId }: SearchPanelProps) {
                 </div>
               )}
             </div>
-          ) : (
-            <div className="mt-6 rounded-2xl border border-dashed border-border bg-white/40 px-6 py-8 text-center text-sm text-foreground-muted">
-              Start typing to search for a company or investor.
-            </div>
-          )}
+          ) : null}
         </div>
       </div>
     </section>
