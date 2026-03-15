@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { NetworkGraph3D } from "@/components/network-graph-3d";
+import { NetworkGraph2D } from "@/components/network-graph-2d";
 import { expandGraph, type GraphFilters } from "@/lib/graph";
 import { formatPercentage } from "@/lib/format";
 import type { GraphData, GraphNode } from "@/lib/types";
@@ -21,22 +21,18 @@ type GraphPanelProps = {
   title: string;
 };
 
-type GraphNode3D = {
+type GraphNode2D = {
   id: string;
   label: string;
   type: "issuer" | "investor";
   color: string;
-  val: number;
+  radius: number;
   depth: number;
   x: number;
   y: number;
-  z: number;
-  fx?: number;
-  fy?: number;
-  fz?: number;
 };
 
-type GraphLink3D = {
+type GraphLink2D = {
   source: string;
   target: string;
   label: string;
@@ -63,32 +59,34 @@ function buildVisualGraph(data: GraphData, centerId: string, filters: GraphFilte
     nodesByDepth.set(depth, group);
   }
 
-  const nodes: GraphNode3D[] = [];
+  const nodes: GraphNode2D[] = [];
   for (const [depth, items] of [...nodesByDepth.entries()].sort((left, right) => left[0] - right[0])) {
     items.sort((left, right) => left.label.localeCompare(right.label));
     items.forEach((node, index) => {
-      const radius = depth === 0 ? 0 : depth * 42;
-      const theta = depth === 0 ? 0 : (index / items.length) * Math.PI * 2 + depth * 0.35;
-      const phi = depth === 0 ? Math.PI / 2 : Math.acos(1 - (2 * (index + 0.5)) / items.length);
+      const radius =
+        depth === 0
+          ? 0
+          : depth === 1
+            ? 160 + Math.max(0, items.length - 10) * 8
+            : depth * Math.max(196, Math.sqrt(items.length) * 54);
+      const theta = depth === 0 ? 0 : (index / items.length) * Math.PI * 2 - Math.PI / 2 + depth * 0.18;
+      const x = radius * Math.cos(theta);
+      const y = radius * Math.sin(theta);
       const color = node.type === "issuer" ? "#103b2d" : "#0b6b88";
       nodes.push({
         id: node.id,
         label: node.type === "issuer" && node.shareCode ? `${node.shareCode} - ${node.label}` : node.label,
         type: node.type,
         color,
-        val: node.id === centerId ? 7.4 : node.type === "issuer" ? 5.6 : 4.4,
+        radius: node.id === centerId ? 18 : node.type === "issuer" ? 14 : 11,
         depth,
-        x: radius * Math.sin(phi) * Math.cos(theta),
-        y: radius * Math.cos(phi),
-        z: radius * Math.sin(phi) * Math.sin(theta),
-        fx: radius * Math.sin(phi) * Math.cos(theta),
-        fy: radius * Math.cos(phi),
-        fz: radius * Math.sin(phi) * Math.sin(theta),
+        x,
+        y,
       });
     });
   }
 
-  const links: GraphLink3D[] = expanded.edges.map((edge) => ({
+  const links: GraphLink2D[] = expanded.edges.map((edge) => ({
     source: edge.sourceId,
     target: edge.targetId,
     label: `${edge.issuerName} / ${edge.investorName}: ${formatPercentage(edge.percentage)}`,
@@ -118,7 +116,7 @@ function fallbackCenterOption(snapshotId: string, node: GraphNode): CenterOption
 export function GraphPanel({ snapshotId, initialCenterId, centerOptions, title }: GraphPanelProps) {
   const [graphData, setGraphData] = useState<GraphData | null>(null);
   const [centerId, setCenterId] = useState(initialCenterId);
-  const [hopLimit, setHopLimit] = useState(2);
+  const [hopLimit, setHopLimit] = useState(1);
   const [minPercentage, setMinPercentage] = useState(1);
   const [maxEdgesPerNode, setMaxEdgesPerNode] = useState(12);
   const [investorType, setInvestorType] = useState("ALL");
@@ -170,7 +168,7 @@ export function GraphPanel({ snapshotId, initialCenterId, centerOptions, title }
       <div className="flex flex-col gap-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm uppercase tracking-[0.22em] text-pine/70">3D network graph</p>
+            <p className="text-sm uppercase tracking-[0.22em] text-pine/70">2D network graph</p>
             <h2 className="mt-2 text-3xl font-semibold text-ink">{title}</h2>
           </div>
           {computedCenterOption && (
@@ -260,7 +258,7 @@ export function GraphPanel({ snapshotId, initialCenterId, centerOptions, title }
 
         <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
           <div className="overflow-hidden rounded-[28px] border border-ink/10 bg-[#f2f7f4]">
-            <NetworkGraph3D nodes={nodes} links={links} centerId={centerId} onNodeClick={setCenterId} />
+            <NetworkGraph2D nodes={nodes} links={links} centerId={centerId} onNodeClick={setCenterId} />
           </div>
 
           <div className="space-y-4 rounded-[28px] border border-ink/10 bg-paper/70 p-5">
@@ -282,8 +280,8 @@ export function GraphPanel({ snapshotId, initialCenterId, centerOptions, title }
               </select>
             </label>
             <p className="text-sm leading-6 text-ink/58">
-              Drag to orbit, scroll to zoom, and click any node to recenter. Expansion is deterministic and capped to
-              keep the graph readable.
+              Click any node or label to recenter. The 2D layout uses concentric rings by hop depth and keeps labels
+              outside the nodes for easier scanning.
             </p>
             {expanded.truncated && (
               <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">

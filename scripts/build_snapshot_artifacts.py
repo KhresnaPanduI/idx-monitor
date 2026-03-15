@@ -368,7 +368,7 @@ def build_snapshot(snapshot_file: SnapshotFile) -> tuple[dict[str, Any], dict[st
     graph_data = {
         "snapshotId": snapshot_file.snapshot_id,
         "settings": {
-            "defaultHopLimit": 2,
+            "defaultHopLimit": 1,
             "maxHopLimit": 4,
             "defaultMinPercentage": 1,
             "defaultMaxEdgesPerNode": 12,
