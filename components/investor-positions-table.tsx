@@ -26,7 +26,7 @@ const columns: ColumnDef<HoldingRow>[] = [
   },
   {
     accessorKey: "issuerName",
-    header: "Issuer",
+    header: "Company",
   },
   {
     accessorKey: "investorTypeLabel",
@@ -84,14 +84,14 @@ export function InvestorPositionsTable({ rows }: { rows: HoldingRow[] }) {
         <div className="flex flex-wrap flex-col lg:flex-row items-start lg:items-end justify-between gap-6">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wide text-accent mb-2">Investor positions</p>
-            <h2 className="text-3xl font-bold text-foreground tracking-tight">Connected issuers in snapshot</h2>
+            <h2 className="text-3xl font-bold text-foreground tracking-tight">Connected companies in snapshot</h2>
           </div>
           
           <div className="flex flex-wrap items-center gap-3">
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Filter issuer or share code..."
+              placeholder="Filter company or stock code..."
               className="rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition-all focus:border-accent focus:ring-2 focus:ring-accent/10 min-w-[200px]"
             />
             <select
@@ -154,4 +154,3 @@ export function InvestorPositionsTable({ rows }: { rows: HoldingRow[] }) {
     </section>
   );
 }
-

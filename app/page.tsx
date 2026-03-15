@@ -21,7 +21,7 @@ export default async function HomePage() {
 
       <section className="grid gap-4 md:grid-cols-4">
         <MetricCard label="Latest Snapshot" value={formatSnapshotDate(latestSnapshotId)} tone="marine" />
-        <MetricCard label="Issuers" value={snapshot.snapshot.issuerCount.toString()} />
+        <MetricCard label="Companies" value={snapshot.snapshot.issuerCount.toString()} />
         <MetricCard label="Investors" value={snapshot.snapshot.investorCount.toString()} />
         <MetricCard label="Warnings" value={snapshot.snapshot.warningCount.toString()} tone="accent" />
       </section>
@@ -31,7 +31,7 @@ export default async function HomePage() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-8">
             <div>
               <p className="text-sm font-semibold text-accent mb-2 uppercase tracking-wide">Personal Watchlist</p>
-              <h2 className="text-3xl font-bold text-foreground tracking-tight">Tracked issuers</h2>
+              <h2 className="text-3xl font-bold text-foreground tracking-tight">Tracked companies</h2>
             </div>
             <div className="rounded-full bg-border/50 px-4 py-1.5 text-xs font-medium text-foreground-muted">
               {manifest.snapshots.length} snapshot ready in pipeline
@@ -68,4 +68,3 @@ export default async function HomePage() {
     </div>
   );
 }
-

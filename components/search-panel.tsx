@@ -40,11 +40,11 @@ export function SearchPanel({ snapshotId }: SearchPanelProps) {
       <div className="flex flex-col gap-10">
         <div className="max-w-3xl">
           <h1 className="font-display text-5xl font-bold text-foreground tracking-tight">
-            Trace issuer ownership and investor links without opening the CSV manually.
+            Find company ownership and connected investors in one place.
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-foreground-muted leading-relaxed">
-            Search stock codes, issuer names, or investor names. Then pivot into tables and bounded multi-hop
-            graphs for the latest KSEI snapshot.
+            Search by stock code, company name, or investor name. Open a company to review its disclosed holders,
+            ownership concentration, and connected investor relationships in the latest snapshot.
           </p>
         </div>
 
@@ -52,7 +52,7 @@ export function SearchPanel({ snapshotId }: SearchPanelProps) {
           <div className="mb-6 flex flex-wrap gap-2">
             {[
               ["all", "All"],
-              ["issuer", "Issuers"],
+              ["issuer", "Companies"],
               ["investor", "Investors"],
             ].map(([value, label]) => (
               <button
@@ -71,7 +71,7 @@ export function SearchPanel({ snapshotId }: SearchPanelProps) {
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search AADI, GOTO, ADARO, TIMOTHY SIDDIK SHU..."
+            placeholder="Search stock code, company, or investor..."
             className="w-full rounded-2xl border border-border bg-background-alt px-6 py-5 text-lg text-foreground placeholder-foreground-muted/60 outline-none transition-all focus:border-accent focus:ring-4 focus:ring-accent/10"
           />
 
@@ -84,7 +84,9 @@ export function SearchPanel({ snapshotId }: SearchPanelProps) {
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs font-semibold text-accent/80 uppercase tracking-wider">{result.type}</p>
+                    <p className="text-xs font-semibold text-accent/80 uppercase tracking-wider">
+                      {result.type === "issuer" ? "Company" : "Investor"}
+                    </p>
                     <p className="mt-2 text-xl font-bold text-foreground group-hover:text-accent transition-colors">{result.title}</p>
                     <p className="mt-1 text-sm text-foreground-muted">{result.subtitle}</p>
                   </div>
@@ -94,7 +96,7 @@ export function SearchPanel({ snapshotId }: SearchPanelProps) {
             ))}
             {!results.length && (
               <div className="rounded-2xl border-2 border-dashed border-border p-10 text-center text-foreground-muted bg-white/50">
-                No results yet. Try a stock code, issuer name, or investor name.
+                No results yet. Try a stock code, company name, or investor name.
               </div>
             )}
           </div>
@@ -103,4 +105,3 @@ export function SearchPanel({ snapshotId }: SearchPanelProps) {
     </section>
   );
 }
-

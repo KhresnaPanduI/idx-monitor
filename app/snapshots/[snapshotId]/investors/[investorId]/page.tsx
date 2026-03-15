@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { CompanySwitcher } from "@/components/company-switcher";
 import { GraphPanel } from "@/components/graph-panel";
 import { InvestorPositionsTable } from "@/components/investor-positions-table";
 import { MetricCard } from "@/components/metric-card";
@@ -49,16 +50,25 @@ export default async function InvestorPage({ params }: InvestorPageProps) {
             <p className="text-sm font-bold text-foreground-muted mb-3 uppercase tracking-wide">Investor Profile</p>
             <h1 className="font-display text-5xl font-bold text-foreground tracking-tight">{investor.investorName}</h1>
             <p className="mt-6 max-w-2xl text-lg text-foreground-muted leading-relaxed">
-              All disclosed issuer positions connected to this investor in the selected snapshot.
+              All disclosed company positions connected to this investor in the selected snapshot.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-8 min-w-[300px] shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wider text-accent/80 mb-2">Largest visible position</p>
-            <p className="text-2xl font-bold text-foreground leading-tight">
-              <span className="text-accent">{investor.topShareCode}</span> <br/> {investor.topIssuerName}
-            </p>
-            <p className="mt-4 text-3xl font-bold text-accent">{formatPercentage(investor.topPercentage)}</p>
+          <div className="flex w-full max-w-md flex-col gap-4">
+            <CompanySwitcher
+              snapshotId={snapshotId}
+              companies={Object.values(snapshot.issuersByCode)
+                .map((company) => ({ shareCode: company.shareCode, issuerName: company.issuerName }))
+                .sort((left, right) => left.shareCode.localeCompare(right.shareCode))}
+            />
+
+            <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-8 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-wider text-accent/80 mb-2">Largest visible position</p>
+              <p className="text-2xl font-bold text-foreground leading-tight">
+                <span className="text-accent">{investor.topShareCode}</span> <br /> {investor.topIssuerName}
+              </p>
+              <p className="mt-4 text-3xl font-bold text-accent">{formatPercentage(investor.topPercentage)}</p>
+            </div>
           </div>
         </div>
       </section>
@@ -66,13 +76,17 @@ export default async function InvestorPage({ params }: InvestorPageProps) {
       <section className="grid gap-4 md:grid-cols-4">
         <MetricCard label="Snapshot" value={formatSnapshotDate(snapshotId)} tone="marine" />
         <MetricCard label="Positions" value={String(investor.positionCount)} />
-        <MetricCard label="Issuers" value={String(investor.issuerCount)} />
+        <MetricCard label="Companies" value={String(investor.issuerCount)} />
         <MetricCard label="Top ownership" value={formatPercentage(investor.topPercentage)} tone="accent" />
       </section>
 
       <InvestorPositionsTable rows={rows} />
-      <GraphPanel snapshotId={snapshotId} initialCenterId={`investor:${investor.investorId}`} centerOptions={centerOptions} title="Investor-centered relationship map" />
+      <GraphPanel
+        snapshotId={snapshotId}
+        initialCenterId={`investor:${investor.investorId}`}
+        centerOptions={centerOptions}
+        title="Investor relationship map"
+      />
     </div>
   );
 }
-

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { CompanySwitcher } from "@/components/company-switcher";
 import { GraphPanel } from "@/components/graph-panel";
 import { HolderTable } from "@/components/holder-table";
 import { MetricCard } from "@/components/metric-card";
@@ -53,10 +54,20 @@ export default async function IssuerPage({ params }: IssuerPageProps) {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-8 min-w-[300px] shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wider text-accent/80 mb-2">Top disclosed holder</p>
-            <p className="text-2xl font-bold text-foreground leading-tight">{issuer.topInvestorName}</p>
-            <p className="mt-4 text-3xl font-bold text-accent">{formatPercentage(issuer.topInvestorPercentage)}</p>
+          <div className="flex w-full max-w-md flex-col gap-4">
+            <CompanySwitcher
+              snapshotId={snapshotId}
+              currentShareCode={issuer.shareCode}
+              companies={Object.values(snapshot.issuersByCode)
+                .map((company) => ({ shareCode: company.shareCode, issuerName: company.issuerName }))
+                .sort((left, right) => left.shareCode.localeCompare(right.shareCode))}
+            />
+
+            <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-8 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-wider text-accent/80 mb-2">Top disclosed holder</p>
+              <p className="text-2xl font-bold text-foreground leading-tight">{issuer.topInvestorName}</p>
+              <p className="mt-4 text-3xl font-bold text-accent">{formatPercentage(issuer.topInvestorPercentage)}</p>
+            </div>
           </div>
         </div>
       </section>
@@ -73,8 +84,12 @@ export default async function IssuerPage({ params }: IssuerPageProps) {
       </section>
 
       <HolderTable snapshotId={snapshotId} rows={rows} />
-      <GraphPanel snapshotId={snapshotId} initialCenterId={`issuer:${issuer.shareCode}`} centerOptions={centerOptions} title="Issuer-centered relationship map" />
+      <GraphPanel
+        snapshotId={snapshotId}
+        initialCenterId={`issuer:${issuer.shareCode}`}
+        centerOptions={centerOptions}
+        title="Company-centered relationship map"
+      />
     </div>
   );
 }
-
