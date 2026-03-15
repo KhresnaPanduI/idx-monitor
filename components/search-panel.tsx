@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 
 import { searchEntries } from "@/lib/search";
 import type { SearchEntry, SearchIndex } from "@/lib/types";
@@ -15,6 +14,7 @@ export function SearchPanel({ snapshotId }: SearchPanelProps) {
   const [entries, setEntries] = useState<SearchEntry[]>([]);
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<"all" | "issuer" | "investor">("all");
+  const trimmedQuery = query.trim();
 
   useEffect(() => {
     let ignore = false;
@@ -33,7 +33,7 @@ export function SearchPanel({ snapshotId }: SearchPanelProps) {
     };
   }, [snapshotId]);
 
-  const results = searchEntries(entries, query, tab);
+  const results = trimmedQuery ? searchEntries(entries, trimmedQuery, tab) : [];
 
   return (
     <section className="rounded-3xl bg-background-alt p-8 shadow-soft border border-border lg:p-12 mb-8">
@@ -75,31 +75,37 @@ export function SearchPanel({ snapshotId }: SearchPanelProps) {
             className="w-full rounded-2xl border border-border bg-background-alt px-6 py-5 text-lg text-foreground placeholder-foreground-muted/60 outline-none transition-all focus:border-accent focus:ring-4 focus:ring-accent/10"
           />
 
-          <div className="mt-6 grid gap-4">
-            {results.map((result) => (
-              <Link
-                key={`${result.type}:${result.id}`}
-                href={result.path}
-                className="group rounded-2xl border border-border bg-white p-5 transition-all hover:border-accent/40 hover:shadow-md"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-semibold text-accent/80 uppercase tracking-wider">
-                      {result.type === "issuer" ? "Company" : "Investor"}
-                    </p>
-                    <p className="mt-2 text-xl font-bold text-foreground group-hover:text-accent transition-colors">{result.title}</p>
-                    <p className="mt-1 text-sm text-foreground-muted">{result.subtitle}</p>
+          {trimmedQuery ? (
+            <div className="mt-6 grid gap-4">
+              {results.map((result) => (
+                <Link
+                  key={`${result.type}:${result.id}`}
+                  href={result.path}
+                  className="group rounded-2xl border border-border bg-white p-5 transition-all hover:border-accent/40 hover:shadow-md"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-semibold text-accent/80 uppercase tracking-wider">
+                        {result.type === "issuer" ? "Company" : "Investor"}
+                      </p>
+                      <p className="mt-2 text-xl font-bold text-foreground group-hover:text-accent transition-colors">{result.title}</p>
+                      <p className="mt-1 text-sm text-foreground-muted">{result.subtitle}</p>
+                    </div>
+                    <p className="max-w-sm text-right text-sm text-foreground-muted">{result.description}</p>
                   </div>
-                  <p className="max-w-sm text-right text-sm text-foreground-muted">{result.description}</p>
+                </Link>
+              ))}
+              {!results.length && (
+                <div className="rounded-2xl border-2 border-dashed border-border p-10 text-center text-foreground-muted bg-white/50">
+                  No matches found. Try a stock code, company name, or investor name.
                 </div>
-              </Link>
-            ))}
-            {!results.length && (
-              <div className="rounded-2xl border-2 border-dashed border-border p-10 text-center text-foreground-muted bg-white/50">
-                No results yet. Try a stock code, company name, or investor name.
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          ) : (
+            <div className="mt-6 rounded-2xl border border-dashed border-border bg-white/40 px-6 py-8 text-center text-sm text-foreground-muted">
+              Start typing to search for a company or investor.
+            </div>
+          )}
         </div>
       </div>
     </section>
