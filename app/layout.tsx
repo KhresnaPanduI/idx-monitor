@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Space_Grotesk } from "next/font/google";
+import { Source_Sans_3, Source_Serif_4 } from "next/font/google";
 
 import "@/app/globals.css";
 import { SiteHeader } from "@/components/site-header";
 
-const sans = Space_Grotesk({
+const sans = Source_Sans_3({
   subsets: ["latin"],
-  variable: "--font-space-grotesk",
+  variable: "--font-source-sans-3",
 });
 
-const display = Instrument_Serif({
+const display = Source_Serif_4({
   subsets: ["latin"],
-  variable: "--font-instrument-serif",
-  weight: "400",
+  variable: "--font-source-serif-4",
+  weight: ["400", "600", "700"],
 });
 
 export const metadata: Metadata = {

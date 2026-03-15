@@ -13,8 +13,8 @@ const config: Config = {
         border: "#cbd5e1", // Slightly stronger cool slate border
       },
       fontFamily: {
-        sans: ["var(--font-space-grotesk)"],
-        display: ["var(--font-instrument-serif)"],
+        sans: ["var(--font-source-sans-3)"],
+        display: ["var(--font-source-serif-4)"],
       },
       boxShadow: {
         soft: "0 10px 28px -14px rgba(15, 23, 42, 0.16), 0 4px 14px -8px rgba(79, 70, 229, 0.08)",

@@ -293,7 +293,7 @@ export function NetworkGraph2D({ nodes, links, centerId, onNodeClick }: NetworkG
                   fontSize={label.fontSize}
                   textAnchor={label.side === "left" ? "end" : label.side === "right" ? "start" : "middle"}
                   fill={node.type === "issuer" ? "#163429" : "#335f70"}
-                  style={{ fontFamily: "Georgia, serif" }}
+                  style={{ fontFamily: "var(--font-source-serif-4), Georgia, serif" }}
                 >
                   {label.shortText}
                 </text>
