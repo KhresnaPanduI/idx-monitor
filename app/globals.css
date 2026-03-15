@@ -7,11 +7,11 @@
 }
 
 body {
-  @apply min-h-screen bg-paper text-ink antialiased;
-  background-image:
-    radial-gradient(circle at top left, rgba(242, 141, 53, 0.14), transparent 26%),
-    radial-gradient(circle at top right, rgba(11, 107, 136, 0.12), transparent 24%),
-    linear-gradient(180deg, #fcfbf8 0%, #f7f6f2 56%, #eef1ec 100%);
+  @apply min-h-screen bg-background text-foreground antialiased;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 a {
@@ -19,16 +19,9 @@ a {
 }
 
 ::selection {
-  background: rgba(16, 59, 45, 0.18);
+  @apply bg-accent/20 text-accent;
 }
 
 .panel {
-  @apply rounded-[28px] border border-white/80 bg-white/85 shadow-panel backdrop-blur;
-}
-
-.grid-noise {
-  background-image:
-    linear-gradient(rgba(16, 18, 26, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(16, 18, 26, 0.04) 1px, transparent 1px);
-  background-size: 24px 24px;
+  @apply bg-background-alt border border-border rounded-3xl shadow-soft;
 }

@@ -36,27 +36,27 @@ export default async function IssuerPage({ params }: IssuerPageProps) {
 
   return (
     <div className="space-y-8 pb-10">
-      <section className="panel overflow-hidden p-6 sm:p-8">
-        <div className="flex flex-wrap items-start justify-between gap-6">
+      <section className="rounded-3xl border border-border bg-background-alt shadow-soft p-8 lg:p-12">
+        <div className="flex flex-wrap flex-col lg:flex-row items-start lg:items-center justify-between gap-10">
           <div className="max-w-3xl">
-            <div className="flex flex-wrap items-center gap-3 text-sm text-ink/55">
-              <Link href="/" className="hover:text-pine">
+            <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-foreground-muted mb-6">
+              <Link href="/" className="hover:text-foreground transition-colors">
                 Home
               </Link>
               <span>/</span>
               <span>{formatSnapshotDate(snapshotId)}</span>
             </div>
-            <p className="mt-6 text-sm uppercase tracking-[0.22em] text-pine/70">{issuer.shareCode}</p>
-            <h1 className="mt-2 text-4xl font-semibold text-ink sm:text-5xl">{issuer.issuerName}</h1>
-            <p className="mt-4 max-w-2xl text-lg text-ink/68">
-              This page shows disclosed holders above the public reporting threshold in the selected KSEI snapshot.
+            <p className="text-sm font-bold text-accent mb-3 uppercase tracking-wide">{issuer.shareCode}</p>
+            <h1 className="font-display text-5xl font-bold text-foreground tracking-tight">{issuer.issuerName}</h1>
+            <p className="mt-6 max-w-2xl text-lg text-foreground-muted leading-relaxed">
+              Disclosed holders above the public reporting threshold in the selected snapshot.
             </p>
           </div>
 
-          <div className="rounded-[28px] border border-pine/10 bg-pine px-5 py-5 text-white">
-            <p className="text-xs uppercase tracking-[0.18em] text-white/70">Top disclosed holder</p>
-            <p className="mt-2 max-w-[280px] text-xl font-semibold">{issuer.topInvestorName}</p>
-            <p className="mt-2 text-white/70">{formatPercentage(issuer.topInvestorPercentage)}</p>
+          <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-8 min-w-[300px] shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wider text-accent/80 mb-2">Top disclosed holder</p>
+            <p className="text-2xl font-bold text-foreground leading-tight">{issuer.topInvestorName}</p>
+            <p className="mt-4 text-3xl font-bold text-accent">{formatPercentage(issuer.topInvestorPercentage)}</p>
           </div>
         </div>
       </section>
@@ -65,15 +65,16 @@ export default async function IssuerPage({ params }: IssuerPageProps) {
         <MetricCard label="Snapshot" value={formatSnapshotDate(snapshotId)} tone="marine" />
         <MetricCard label="Known disclosed" value={formatPercentage(issuer.knownDisclosedPercentageSum)} />
         <MetricCard
-          label="Estimated public / <1%"
+          label="Est. Public / <1%"
           value={formatPercentage(issuer.estimatedPublicRemainderPercentage)}
           tone="accent"
         />
         <MetricCard label="Known shares" value={formatNumber(issuer.knownDisclosedShares)} />
       </section>
 
-      <GraphPanel snapshotId={snapshotId} initialCenterId={`issuer:${issuer.shareCode}`} centerOptions={centerOptions} title="Issuer-centered relationship map" />
       <HolderTable snapshotId={snapshotId} rows={rows} />
+      <GraphPanel snapshotId={snapshotId} initialCenterId={`issuer:${issuer.shareCode}`} centerOptions={centerOptions} title="Issuer-centered relationship map" />
     </div>
   );
 }
+

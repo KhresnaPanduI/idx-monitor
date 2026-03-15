@@ -72,7 +72,7 @@ function buildVisualGraph(data: GraphData, centerId: string, filters: GraphFilte
       const theta = depth === 0 ? 0 : (index / items.length) * Math.PI * 2 - Math.PI / 2 + depth * 0.18;
       const x = radius * Math.cos(theta);
       const y = radius * Math.sin(theta);
-      const color = node.type === "issuer" ? "#103b2d" : "#0b6b88";
+      const color = node.type === "issuer" ? "#4f46e5" : "#64748b"; // FinTech: Indigo Accent vs Slate
       nodes.push({
         id: node.id,
         label: node.type === "issuer" && node.shareCode ? `${node.shareCode} - ${node.label}` : node.label,
@@ -90,7 +90,7 @@ function buildVisualGraph(data: GraphData, centerId: string, filters: GraphFilte
     source: edge.sourceId,
     target: edge.targetId,
     label: `${edge.issuerName} / ${edge.investorName}: ${formatPercentage(edge.percentage)}`,
-    color: "rgba(16, 18, 26, 0.24)",
+    color: "rgba(79, 70, 229, 0.15)", // Soft Indigo Links
     width: Math.max(0.5, edge.percentage / 8),
   }));
 
@@ -143,7 +143,7 @@ export function GraphPanel({ snapshotId, initialCenterId, centerOptions, title }
   }, [snapshotId]);
 
   if (!graphData) {
-    return <div className="panel p-6 text-sm text-ink/55">Loading graph artifact...</div>;
+    return <div className="rounded-3xl border border-border bg-background-alt p-8 lg:p-12 text-sm text-foreground-muted font-medium">Loading graph artifact...</div>;
   }
 
   const filters: GraphFilters = {
@@ -164,30 +164,30 @@ export function GraphPanel({ snapshotId, initialCenterId, centerOptions, title }
     : centerOptions;
 
   return (
-    <section className="panel p-6">
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+    <section className="rounded-3xl border border-border bg-background-alt p-8 shadow-soft lg:p-12">
+      <div className="flex flex-col gap-10">
+        <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <p className="text-sm uppercase tracking-[0.22em] text-pine/70">2D network graph</p>
-            <h2 className="mt-2 text-3xl font-semibold text-ink">{title}</h2>
+            <p className="text-sm font-semibold uppercase tracking-wide text-accent mb-2">2D network graph</p>
+            <h2 className="text-3xl font-bold text-foreground tracking-tight">{title}</h2>
           </div>
           {computedCenterOption && (
             <Link
               href={computedCenterOption.path}
-              className="rounded-full border border-pine/20 bg-pine px-4 py-2 text-sm font-medium text-white"
+              className="rounded-xl bg-foreground px-6 py-2.5 text-sm font-medium text-background transition-colors hover:bg-foreground/90 shadow-sm shadow-foreground/10"
             >
               Open selected center page
             </Link>
           )}
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          <label className="text-sm text-ink/65">
-            <span className="mb-2 block uppercase tracking-[0.18em] text-ink/45">Center</span>
+        <div className="grid gap-3 lg:grid-cols-5">
+          <label className="text-sm">
+            <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-foreground-muted">Center</span>
             <select
               value={centerId}
               onChange={(event) => setCenterId(event.target.value)}
-              className="w-full rounded-2xl border border-ink/10 bg-paper px-4 py-3 outline-none"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all"
             >
               {availableCenterOptions.map((option) => (
                 <option key={option.nodeId} value={option.nodeId}>
@@ -197,12 +197,12 @@ export function GraphPanel({ snapshotId, initialCenterId, centerOptions, title }
             </select>
           </label>
 
-          <label className="text-sm text-ink/65">
-            <span className="mb-2 block uppercase tracking-[0.18em] text-ink/45">Hop depth</span>
+          <label className="text-sm">
+            <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-foreground-muted">Hop depth</span>
             <select
               value={hopLimit}
               onChange={(event) => setHopLimit(Number(event.target.value))}
-              className="w-full rounded-2xl border border-ink/10 bg-paper px-4 py-3 outline-none"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all"
             >
               {[1, 2, 3, 4].map((value) => (
                 <option key={value} value={value}>
@@ -212,8 +212,8 @@ export function GraphPanel({ snapshotId, initialCenterId, centerOptions, title }
             </select>
           </label>
 
-          <label className="text-sm text-ink/65">
-            <span className="mb-2 block uppercase tracking-[0.18em] text-ink/45">Min %</span>
+          <label className="text-sm">
+            <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-foreground-muted">Min %</span>
             <input
               type="number"
               min={0}
@@ -221,12 +221,12 @@ export function GraphPanel({ snapshotId, initialCenterId, centerOptions, title }
               step={0.1}
               value={minPercentage}
               onChange={(event) => setMinPercentage(Number(event.target.value))}
-              className="w-full rounded-2xl border border-ink/10 bg-paper px-4 py-3 outline-none"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all"
             />
           </label>
 
-          <label className="text-sm text-ink/65">
-            <span className="mb-2 block uppercase tracking-[0.18em] text-ink/45">Edges per node</span>
+          <label className="text-sm">
+            <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-foreground-muted">Edges per node</span>
             <input
               type="number"
               min={2}
@@ -234,16 +234,16 @@ export function GraphPanel({ snapshotId, initialCenterId, centerOptions, title }
               step={1}
               value={maxEdgesPerNode}
               onChange={(event) => setMaxEdgesPerNode(Number(event.target.value))}
-              className="w-full rounded-2xl border border-ink/10 bg-paper px-4 py-3 outline-none"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all"
             />
           </label>
 
-          <label className="text-sm text-ink/65">
-            <span className="mb-2 block uppercase tracking-[0.18em] text-ink/45">Investor type</span>
+          <label className="text-sm">
+            <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-foreground-muted">Investor type</span>
             <select
               value={investorType}
               onChange={(event) => setInvestorType(event.target.value)}
-              className="w-full rounded-2xl border border-ink/10 bg-paper px-4 py-3 outline-none"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all"
             >
               <option value="ALL">All types</option>
               <option value="ID">Individual</option>
@@ -256,35 +256,44 @@ export function GraphPanel({ snapshotId, initialCenterId, centerOptions, title }
           </label>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
-          <div className="overflow-hidden rounded-[28px] border border-ink/10 bg-[#f2f7f4]">
+        <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+          <div className="overflow-hidden rounded-2xl border border-border bg-background min-h-[500px] shadow-inner">
             <NetworkGraph2D nodes={nodes} links={links} centerId={centerId} onNodeClick={setCenterId} />
           </div>
 
-          <div className="space-y-4 rounded-[28px] border border-ink/10 bg-paper/70 p-5">
+          <div className="space-y-8 rounded-2xl border border-indigo-100 bg-indigo-50/50 p-6 lg:p-8 flex flex-col justify-between shadow-sm">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-ink/45">Visible graph</p>
-              <p className="mt-2 text-2xl font-semibold text-ink">{expanded.nodes.length} nodes</p>
-              <p className="text-sm text-ink/58">{expanded.edges.length} bounded edges</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-accent/80 mb-2">Visible graph</p>
+              <p className="text-4xl font-bold text-foreground tracking-tight leading-none">{expanded.nodes.length}</p>
+              <p className="text-xs font-medium text-foreground-muted block mt-1">Nodes</p>
+              
+              <div className="h-px w-full bg-border/50 my-6"></div>
+
+              <p className="text-4xl font-bold text-foreground tracking-tight leading-none">{expanded.edges.length}</p>
+              <p className="text-xs font-medium text-foreground-muted block mt-1">Bounded edges</p>
             </div>
-            <label className="text-sm text-ink/65">
-              <span className="mb-2 block uppercase tracking-[0.18em] text-ink/45">Local / Foreign</span>
+            
+            <label className="text-sm block">
+              <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-foreground-muted">Local / Foreign</span>
               <select
                 value={localForeign}
                 onChange={(event) => setLocalForeign(event.target.value)}
-                className="w-full rounded-2xl border border-ink/10 bg-white px-4 py-3 outline-none"
+                className="w-full rounded-xl border border-border bg-white px-4 py-3 outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all text-sm shadow-sm"
               >
                 <option value="ALL">All holders</option>
                 <option value="L">Local</option>
                 <option value="A">Foreign</option>
               </select>
             </label>
-            <p className="text-sm leading-6 text-ink/58">
+
+            <p className="text-sm leading-relaxed text-foreground-muted">
               Click any node or label to recenter. The 2D layout uses concentric rings by hop depth and keeps labels
               outside the nodes for easier scanning.
             </p>
+
             {expanded.truncated && (
-              <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 shadow-sm">
+                <p className="font-semibold text-amber-700 mb-1">Cap reached</p>
                 The graph hit the safety cap. Raise filters or lower hop depth to inspect more precisely.
               </div>
             )}

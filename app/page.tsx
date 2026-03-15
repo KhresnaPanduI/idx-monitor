@@ -9,12 +9,14 @@ export default async function HomePage() {
   const manifest = await getManifest();
   const latestSnapshotId = await getLatestSnapshotId();
   const snapshot = await getSnapshotData(latestSnapshotId);
-  const featuredIssuers = Object.values(snapshot.issuersByCode)
-    .sort((left, right) => right.knownDisclosedPercentageSum - left.knownDisclosedPercentageSum)
-    .slice(0, 6);
+  const watchlistCodes = ["BREN", "BUMI", "BUVA", "CUAN", "DEWA", "ENRG", "PTRO", "RAJA", "RATU", "SUPA", "VKTR"];
+  const featuredIssuers = watchlistCodes
+    .map((code) => snapshot.issuersByCode[code])
+    .filter(Boolean)
+    .sort((a, b) => a.shareCode.localeCompare(b.shareCode));
 
   return (
-    <div className="space-y-8 pb-10">
+    <div className="max-w-7xl mx-auto space-y-8 pb-10 px-6 lg:px-8">
       <SearchPanel snapshotId={latestSnapshotId} />
 
       <section className="grid gap-4 md:grid-cols-4">
@@ -24,49 +26,46 @@ export default async function HomePage() {
         <MetricCard label="Warnings" value={snapshot.snapshot.warningCount.toString()} tone="accent" />
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="panel p-6 sm:p-8">
-          <div className="flex items-end justify-between gap-4">
+      <section>
+        <div className="rounded-3xl border border-border bg-background-alt p-8 shadow-soft lg:p-10">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-8">
             <div>
-              <p className="text-sm uppercase tracking-[0.22em] text-pine/70">High coverage issuers</p>
-              <h2 className="mt-2 text-3xl font-semibold text-ink">Fast entry points for research</h2>
+              <p className="text-sm font-semibold text-accent mb-2 uppercase tracking-wide">Personal Watchlist</p>
+              <h2 className="text-3xl font-bold text-foreground tracking-tight">Tracked issuers</h2>
             </div>
-            <div className="text-sm text-ink/55">{manifest.snapshots.length} snapshot ready in pipeline</div>
+            <div className="rounded-full bg-border/50 px-4 py-1.5 text-xs font-medium text-foreground-muted">
+              {manifest.snapshots.length} snapshot ready in pipeline
+            </div>
           </div>
 
-          <div className="mt-6 grid gap-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {featuredIssuers.map((issuer) => (
               <Link
                 key={issuer.shareCode}
                 href={`/snapshots/${latestSnapshotId}/issuers/${issuer.shareCode}`}
-                className="rounded-[24px] border border-ink/10 bg-paper/70 p-5 transition hover:-translate-y-0.5 hover:border-pine/25"
+                className="group rounded-2xl border border-border bg-background p-6 transition-all hover:border-accent/40 hover:shadow-md hover:-translate-y-1"
               >
-                <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex flex-col h-full justify-between gap-4">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.2em] text-ink/45">{issuer.shareCode}</p>
-                    <h3 className="mt-1 text-xl font-semibold text-ink">{issuer.issuerName}</h3>
-                    <p className="mt-2 text-sm text-ink/60">{issuer.holderCount} disclosed holders in latest file</p>
+                    <div className="flex items-center justify-between mb-2">
+                       <span className="inline-flex items-center justify-center rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-bold text-accent transition-colors group-hover:bg-accent group-hover:text-white">
+                         {issuer.shareCode}
+                       </span>
+                    </div>
+                    <h3 className="text-xl font-bold text-foreground line-clamp-1" title={issuer.issuerName}>{issuer.issuerName}</h3>
+                    <p className="mt-1 text-sm text-foreground-muted">{issuer.holderCount} disclosed holders</p>
                   </div>
-                  <div className="rounded-2xl bg-pine px-4 py-3 text-right text-white">
-                    <p className="text-xs uppercase tracking-[0.18em] text-white/70">Known disclosed</p>
-                    <p className="text-2xl font-semibold">{formatPercentage(issuer.knownDisclosedPercentageSum)}</p>
+                  <div className="pt-4 border-t border-border/50 mt-auto">
+                    <p className="text-xs text-foreground-muted mb-1 font-medium">Known disclosed</p>
+                    <p className="text-2xl font-bold text-foreground">{formatPercentage(issuer.knownDisclosedPercentageSum)}</p>
                   </div>
                 </div>
               </Link>
             ))}
           </div>
         </div>
-
-        <div className="panel p-6 sm:p-8">
-          <p className="text-sm uppercase tracking-[0.22em] text-pine/70">Why this helps</p>
-          <h2 className="mt-2 text-3xl font-semibold text-ink">Read the ownership story, not raw rows</h2>
-          <div className="mt-6 space-y-5 text-sm leading-7 text-ink/68">
-            <p>See the disclosed ownership concentration for each issuer and estimate the remainder still held below the public threshold.</p>
-            <p>Jump from an issuer to its investors, then follow the same investor into other issuers with a bounded multi-hop graph.</p>
-            <p>Use full investor type labels and cleaner geography values so scanning is easier than the source CSV.</p>
-          </div>
-        </div>
       </section>
     </div>
   );
 }
+

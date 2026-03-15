@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-table";
 import Link from "next/link";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 import { formatNumber, formatPercentage } from "@/lib/format";
 import type { HoldingRow } from "@/lib/types";
@@ -18,7 +19,7 @@ const columns: ColumnDef<HoldingRow>[] = [
     accessorKey: "shareCode",
     header: "Share code",
     cell: ({ row, getValue }) => (
-      <Link href={`/snapshots/${row.original.snapshotDate}/issuers/${row.original.shareCode}`} className="font-medium text-pine hover:underline">
+      <Link href={`/snapshots/${row.original.snapshotDate}/issuers/${row.original.shareCode}`} className="font-bold text-foreground hover:text-accent transition-colors">
         {String(getValue())}
       </Link>
     ),
@@ -43,7 +44,17 @@ const columns: ColumnDef<HoldingRow>[] = [
   {
     accessorKey: "percentage",
     header: "Ownership",
-    cell: ({ getValue }) => formatPercentage(Number(getValue())),
+    cell: ({ getValue }) => {
+      const val = Number(getValue());
+      return (
+        <div className="flex items-center gap-3">
+          <span className="w-12 font-semibold text-foreground">{formatPercentage(val)}</span>
+          <div className="h-2 w-24 rounded-full bg-border/50 overflow-hidden">
+            <div className="h-full bg-accent rounded-full transition-all" style={{ width: `${Math.min(100, val)}%` }} />
+          </div>
+        </div>
+      );
+    },
   },
 ];
 
@@ -68,42 +79,44 @@ export function InvestorPositionsTable({ rows }: { rows: HoldingRow[] }) {
   });
 
   return (
-    <section className="panel p-6">
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+    <section className="rounded-3xl border border-border bg-background-alt p-8 shadow-soft lg:p-12">
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-wrap flex-col lg:flex-row items-start lg:items-end justify-between gap-6">
           <div>
-            <p className="text-sm uppercase tracking-[0.22em] text-pine/70">Investor positions</p>
-            <h2 className="mt-2 text-3xl font-semibold text-ink">Connected issuers in snapshot</h2>
+            <p className="text-sm font-semibold uppercase tracking-wide text-accent mb-2">Investor positions</p>
+            <h2 className="text-3xl font-bold text-foreground tracking-tight">Connected issuers in snapshot</h2>
           </div>
-          <div className="text-sm text-ink/55">{filteredRows.length} positions visible</div>
+          
+          <div className="flex flex-wrap items-center gap-3">
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Filter issuer or share code..."
+              className="rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition-all focus:border-accent focus:ring-2 focus:ring-accent/10 min-w-[200px]"
+            />
+            <select
+              value={origin}
+              onChange={(event) => setOrigin(event.target.value)}
+              className="rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none transition-all focus:border-accent focus:ring-2 focus:ring-accent/10"
+            >
+              <option value="ALL">All origins</option>
+              <option value="L">Local</option>
+              <option value="A">Foreign</option>
+            </select>
+            <div className="ml-2 rounded-full bg-border/50 px-3 py-1 text-xs font-semibold text-foreground-muted">
+              {filteredRows.length} positions visible
+            </div>
+          </div>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2">
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Filter issuer or share code..."
-            className="rounded-2xl border border-ink/10 bg-paper px-4 py-3 outline-none"
-          />
-          <select
-            value={origin}
-            onChange={(event) => setOrigin(event.target.value)}
-            className="rounded-2xl border border-ink/10 bg-paper px-4 py-3 outline-none"
-          >
-            <option value="ALL">All origins</option>
-            <option value="L">Local</option>
-            <option value="A">Foreign</option>
-          </select>
-        </div>
-
-        <div className="overflow-hidden rounded-[28px] border border-ink/10">
+        <div className="rounded-2xl border border-border bg-white shadow-sm overflow-hidden">
           <div className="max-h-[700px] overflow-auto">
             <table className="min-w-full border-collapse text-left">
-              <thead className="sticky top-0 z-10 bg-marine text-sm text-white">
+              <thead className="sticky top-0 z-10 bg-background/95 backdrop-blur text-xs font-semibold uppercase tracking-wider text-foreground-muted border-b border-border">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <th key={header.id} className="px-4 py-3 font-medium">
+                      <th key={header.id} className="px-5 py-4 font-medium whitespace-nowrap">
                         {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                       </th>
                     ))}
@@ -111,22 +124,34 @@ export function InvestorPositionsTable({ rows }: { rows: HoldingRow[] }) {
                 ))}
               </thead>
               <tbody className="bg-white">
-                {table.getRowModel().rows.map((row) => (
-                  <tr key={row.id} className="border-t border-ink/8 text-sm text-ink/75">
+                {table.getRowModel().rows.map((row, index) => (
+                  <motion.tr 
+                    key={row.id} 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: Math.min(index, 20) * 0.03 }}
+                    className="border-b border-border text-sm text-foreground hover:bg-background-alt transition-colors"
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-4 py-3 align-top">
+                      <td key={cell.id} className="px-5 py-4 align-middle whitespace-nowrap">
                         {cell.column.columnDef.cell
                           ? flexRender(cell.column.columnDef.cell, cell.getContext())
                           : String(cell.getValue() ?? "")}
                       </td>
                     ))}
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>
+            {!filteredRows.length && (
+               <div className="p-8 text-center text-sm text-foreground-muted uppercase tracking-wide">
+                 No matching positions found.
+               </div>
+            )}
           </div>
         </div>
       </div>
     </section>
   );
 }
+

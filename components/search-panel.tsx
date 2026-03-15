@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 import { searchEntries } from "@/lib/search";
 import type { SearchEntry, SearchIndex } from "@/lib/types";
@@ -35,21 +36,20 @@ export function SearchPanel({ snapshotId }: SearchPanelProps) {
   const results = searchEntries(entries, query, tab);
 
   return (
-    <section className="panel grid-noise overflow-hidden p-6 sm:p-8">
-      <div className="flex flex-col gap-6">
+    <section className="rounded-3xl bg-background-alt p-8 shadow-soft border border-border lg:p-12 mb-8">
+      <div className="flex flex-col gap-10">
         <div className="max-w-3xl">
-          <p className="text-sm uppercase tracking-[0.22em] text-pine/70">Search-first workflow</p>
-          <h1 className="mt-3 font-display text-5xl leading-tight text-ink sm:text-6xl">
+          <h1 className="font-display text-5xl font-bold text-foreground tracking-tight">
             Trace issuer ownership and investor links without opening the CSV manually.
           </h1>
-          <p className="mt-4 max-w-2xl text-lg text-ink/72">
+          <p className="mt-6 max-w-2xl text-lg text-foreground-muted leading-relaxed">
             Search stock codes, issuer names, or investor names. Then pivot into tables and bounded multi-hop
             graphs for the latest KSEI snapshot.
           </p>
         </div>
 
-        <div className="rounded-[28px] border border-ink/10 bg-white/90 p-4 shadow-panel">
-          <div className="mb-3 flex flex-wrap gap-2">
+        <div className="rounded-3xl border border-border bg-background p-6 lg:p-8 shadow-inner">
+          <div className="mb-6 flex flex-wrap gap-2">
             {[
               ["all", "All"],
               ["issuer", "Issuers"],
@@ -59,9 +59,9 @@ export function SearchPanel({ snapshotId }: SearchPanelProps) {
                 key={value}
                 type="button"
                 onClick={() => setTab(value as typeof tab)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                  tab === value ? "bg-pine text-white" : "bg-ink/5 text-ink/70 hover:bg-ink/10"
-                }`}
+                className={`rounded-full px-6 py-2.5 text-sm font-medium transition-all ${
+                  tab === value ? "bg-accent text-white shadow-md shadow-accent/20" : "bg-background-alt text-foreground-muted hover:text-foreground hover:bg-border/50 border border-border"
+                 }`}
               >
                 {label}
               </button>
@@ -72,28 +72,28 @@ export function SearchPanel({ snapshotId }: SearchPanelProps) {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search AADI, GOTO, ADARO, TIMOTHY SIDDIK SHU..."
-            className="w-full rounded-2xl border border-ink/10 bg-paper px-5 py-4 text-lg outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/15"
+            className="w-full rounded-2xl border border-border bg-background-alt px-6 py-5 text-lg text-foreground placeholder-foreground-muted/60 outline-none transition-all focus:border-accent focus:ring-4 focus:ring-accent/10"
           />
 
-          <div className="mt-4 grid gap-3">
+          <div className="mt-6 grid gap-4">
             {results.map((result) => (
               <Link
                 key={`${result.type}:${result.id}`}
                 href={result.path}
-                className="rounded-2xl border border-ink/10 bg-white px-4 py-4 transition hover:-translate-y-0.5 hover:border-pine/25 hover:shadow-lg"
+                className="group rounded-2xl border border-border bg-white p-5 transition-all hover:border-accent/40 hover:shadow-md"
               >
-                <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.22em] text-ink/45">{result.type}</p>
-                    <p className="mt-1 text-lg font-semibold text-ink">{result.title}</p>
-                    <p className="text-sm text-ink/60">{result.subtitle}</p>
+                    <p className="text-xs font-semibold text-accent/80 uppercase tracking-wider">{result.type}</p>
+                    <p className="mt-2 text-xl font-bold text-foreground group-hover:text-accent transition-colors">{result.title}</p>
+                    <p className="mt-1 text-sm text-foreground-muted">{result.subtitle}</p>
                   </div>
-                  <p className="max-w-sm text-right text-sm text-ink/55">{result.description}</p>
+                  <p className="max-w-sm text-right text-sm text-foreground-muted">{result.description}</p>
                 </div>
               </Link>
             ))}
             {!results.length && (
-              <div className="rounded-2xl border border-dashed border-ink/15 bg-paper px-4 py-5 text-sm text-ink/55">
+              <div className="rounded-2xl border-2 border-dashed border-border p-10 text-center text-foreground-muted bg-white/50">
                 No results yet. Try a stock code, issuer name, or investor name.
               </div>
             )}
@@ -103,3 +103,4 @@ export function SearchPanel({ snapshotId }: SearchPanelProps) {
     </section>
   );
 }
+

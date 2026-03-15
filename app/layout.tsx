@@ -24,10 +24,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body className={`${sans.variable} ${display.variable}`}>
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-x-0 top-0 -z-10 h-[420px] bg-gradient-to-b from-white/70 to-transparent" />
+        <div className="relative overflow-hidden min-h-screen">
           <SiteHeader />
-          <main className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">{children}</main>
+          <main className="mx-auto w-full max-w-7xl px-6 lg:px-8 pb-12 pt-8">{children}</main>
         </div>
       </body>
     </html>
