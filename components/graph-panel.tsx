@@ -287,8 +287,8 @@ export function GraphPanel({ snapshotId, initialCenterId, centerOptions, title }
             </label>
 
             <p className="text-sm leading-relaxed text-foreground-muted">
-              Click any node or label to recenter. The 2D layout uses concentric rings by hop depth and keeps labels
-              outside the nodes for easier scanning.
+              Scroll to zoom, drag to pan, and click any node or label to recenter. The 2D layout uses concentric
+              rings by hop depth and keeps labels outside the nodes for easier scanning.
             </p>
 
             {expanded.truncated && (

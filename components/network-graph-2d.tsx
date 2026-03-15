@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type GraphNode2D = {
   id: string;
@@ -45,6 +46,15 @@ type LabelDatum = {
 const SVG_WIDTH = 860;
 const SVG_HEIGHT = 560;
 const PADDING = 30;
+const MIN_ZOOM_RATIO = 0.35;
+const MAX_ZOOM_RATIO = 2.8;
+
+type ViewBox = {
+  minX: number;
+  minY: number;
+  width: number;
+  height: number;
+};
 
 function truncateLabel(label: string, maxLength: number) {
   if (label.length <= maxLength) {
@@ -177,6 +187,13 @@ function buildRingGuides(nodes: GraphNode2D[]) {
 }
 
 export function NetworkGraph2D({ nodes, links, centerId, onNodeClick }: NetworkGraph2DProps) {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const dragStateRef = useRef<{
+    pointerId: number;
+    clientX: number;
+    clientY: number;
+  } | null>(null);
+  const suppressClickRef = useRef(false);
   const { nodeMap, labels, viewBox, ringGuides } = useMemo(() => {
     const nextNodeMap = new Map(nodes.map((node) => [node.id, node]));
     const nextLabels = buildLabelLayout(nodes, centerId);
@@ -187,15 +204,141 @@ export function NetworkGraph2D({ nodes, links, centerId, onNodeClick }: NetworkG
       ringGuides: buildRingGuides(nodes),
     };
   }, [centerId, nodes]);
+  const [activeViewBox, setActiveViewBox] = useState(viewBox);
+
+  useEffect(() => {
+    setActiveViewBox(viewBox);
+    suppressClickRef.current = false;
+  }, [viewBox]);
+
+  function clampViewBox(next: ViewBox) {
+    const minWidth = viewBox.width * MIN_ZOOM_RATIO;
+    const maxWidth = viewBox.width * MAX_ZOOM_RATIO;
+    const minHeight = viewBox.height * MIN_ZOOM_RATIO;
+    const maxHeight = viewBox.height * MAX_ZOOM_RATIO;
+
+    return {
+      minX: next.minX,
+      minY: next.minY,
+      width: Math.min(maxWidth, Math.max(minWidth, next.width)),
+      height: Math.min(maxHeight, Math.max(minHeight, next.height)),
+    };
+  }
+
+  function toSvgPoint(clientX: number, clientY: number) {
+    const svg = svgRef.current;
+    if (!svg) {
+      return null;
+    }
+
+    const rect = svg.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      return null;
+    }
+
+    return {
+      x: activeViewBox.minX + ((clientX - rect.left) / rect.width) * activeViewBox.width,
+      y: activeViewBox.minY + ((clientY - rect.top) / rect.height) * activeViewBox.height,
+      rect,
+    };
+  }
+
+  function handleWheel(event: ReactWheelEvent<SVGSVGElement>) {
+    event.preventDefault();
+
+    const point = toSvgPoint(event.clientX, event.clientY);
+    if (!point) {
+      return;
+    }
+
+    const zoomFactor = event.deltaY > 0 ? 1.12 : 0.88;
+    const nextWidth = activeViewBox.width * zoomFactor;
+    const nextHeight = activeViewBox.height * zoomFactor;
+    const ratioX = (point.x - activeViewBox.minX) / activeViewBox.width;
+    const ratioY = (point.y - activeViewBox.minY) / activeViewBox.height;
+    const clamped = clampViewBox({
+      minX: point.x - nextWidth * ratioX,
+      minY: point.y - nextHeight * ratioY,
+      width: nextWidth,
+      height: nextHeight,
+    });
+
+    setActiveViewBox(clamped);
+  }
+
+  function handlePointerDown(event: ReactPointerEvent<SVGSVGElement>) {
+    dragStateRef.current = {
+      pointerId: event.pointerId,
+      clientX: event.clientX,
+      clientY: event.clientY,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function handlePointerMove(event: ReactPointerEvent<SVGSVGElement>) {
+    const dragState = dragStateRef.current;
+    const svg = svgRef.current;
+    if (!dragState || !svg || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const rect = svg.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      return;
+    }
+
+    const deltaX = event.clientX - dragState.clientX;
+    const deltaY = event.clientY - dragState.clientY;
+
+    if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+      suppressClickRef.current = true;
+    }
+
+    setActiveViewBox((current) => ({
+      ...current,
+      minX: current.minX - (deltaX / rect.width) * current.width,
+      minY: current.minY - (deltaY / rect.height) * current.height,
+    }));
+
+    dragStateRef.current = {
+      pointerId: event.pointerId,
+      clientX: event.clientX,
+      clientY: event.clientY,
+    };
+  }
+
+  function handlePointerUp(event: ReactPointerEvent<SVGSVGElement>) {
+    if (dragStateRef.current?.pointerId === event.pointerId) {
+      dragStateRef.current = null;
+      event.currentTarget.releasePointerCapture(event.pointerId);
+      window.setTimeout(() => {
+        suppressClickRef.current = false;
+      }, 0);
+    }
+  }
+
+  function handleNodeClick(nodeId: string) {
+    if (suppressClickRef.current) {
+      return;
+    }
+
+    onNodeClick(nodeId);
+  }
 
   return (
     <div className="h-[560px] w-full">
       <svg
-        viewBox={`${viewBox.minX} ${viewBox.minY} ${viewBox.width} ${viewBox.height}`}
+        ref={svgRef}
+        viewBox={`${activeViewBox.minX} ${activeViewBox.minY} ${activeViewBox.width} ${activeViewBox.height}`}
         className="h-full w-full"
         role="img"
         aria-label="Ownership network graph"
         preserveAspectRatio="xMidYMid meet"
+        onWheel={handleWheel}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
       >
         <rect x={viewBox.minX} y={viewBox.minY} width={viewBox.width} height={viewBox.height} fill="#f2f7f4" />
 
@@ -267,14 +410,14 @@ export function NetworkGraph2D({ nodes, links, centerId, onNodeClick }: NetworkG
                 strokeWidth={1}
               />
               <g
-                onClick={() => onNodeClick(node.id)}
+                onClick={() => handleNodeClick(node.id)}
                 className="cursor-pointer"
                 role="button"
                 tabIndex={0}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
-                    onNodeClick(node.id);
+                    handleNodeClick(node.id);
                   }
                 }}
               >
@@ -307,7 +450,7 @@ export function NetworkGraph2D({ nodes, links, centerId, onNodeClick }: NetworkG
                 opacity={0.82}
                 stroke={node.id === centerId ? "#0c2f23" : "rgba(255,255,255,0.92)"}
                 strokeWidth={node.id === centerId ? 2.5 : 2}
-                onClick={() => onNodeClick(node.id)}
+                onClick={() => handleNodeClick(node.id)}
                 className="cursor-pointer"
               >
                 <title>{node.label}</title>
