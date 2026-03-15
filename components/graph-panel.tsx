@@ -31,6 +31,9 @@ type GraphNode3D = {
   x: number;
   y: number;
   z: number;
+  fx?: number;
+  fy?: number;
+  fz?: number;
 };
 
 type GraphLink3D = {
@@ -78,6 +81,9 @@ function buildVisualGraph(data: GraphData, centerId: string, filters: GraphFilte
         x: radius * Math.sin(phi) * Math.cos(theta),
         y: radius * Math.cos(phi),
         z: radius * Math.sin(phi) * Math.sin(theta),
+        fx: radius * Math.sin(phi) * Math.cos(theta),
+        fy: radius * Math.cos(phi),
+        fz: radius * Math.sin(phi) * Math.sin(theta),
       });
     });
   }
