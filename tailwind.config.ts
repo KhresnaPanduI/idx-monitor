@@ -10,15 +10,15 @@ const config: Config = {
         foreground: "#0f172a", // Slate/charcoal for main text
         "foreground-muted": "#64748b", // Slate for muted text
         accent: "#4f46e5", // Crisp Indigo
-        border: "#e2e8f0", // Soft, light border
+        border: "#cbd5e1", // Slightly stronger cool slate border
       },
       fontFamily: {
         sans: ["var(--font-space-grotesk)"],
         display: ["var(--font-instrument-serif)"],
       },
       boxShadow: {
-        soft: "0 4px 20px -2px rgba(0, 0, 0, 0.05)",
-        float: "0 8px 30px -4px rgba(0, 0, 0, 0.08)",
+        soft: "0 10px 28px -14px rgba(15, 23, 42, 0.16), 0 4px 14px -8px rgba(79, 70, 229, 0.08)",
+        float: "0 18px 42px -22px rgba(15, 23, 42, 0.22), 0 10px 22px -14px rgba(79, 70, 229, 0.12)",
       },
     },
   },

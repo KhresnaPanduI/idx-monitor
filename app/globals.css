@@ -23,5 +23,5 @@ a {
 }
 
 .panel {
-  @apply bg-background-alt border border-border rounded-3xl shadow-soft;
+  @apply bg-background-alt border border-border rounded-3xl shadow-soft ring-1 ring-slate-900/[0.03];
 }
